@@ -6,7 +6,7 @@
   <title>高二规划讲座 - 分天课表</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -59,10 +59,8 @@
       <!-- 头部标题 -->
     </header>
 
-    <!-- 下载按钮区域已移除 -->
-
     <!-- 下载按钮区域 -->
-    <div class="text-center mb-8">
+    <div class="text-center mb-8 relative z-30">
       <button id="downloadFridayBtn" class="bg-primary hover:bg-primary/90 text-white py-3 px-6 rounded-lg shadow-md transition-all mx-2">
         <i class="fa fa-download mr-2"></i> 下载周五课表
       </button>
@@ -156,9 +154,14 @@
         var channelData = localStorage.getItem('currentChannel');
         var teacherInfoData = localStorage.getItem('teacherInfo');
         
+        // 如果没有数据，返回空对象而不是null
         if (!coursesData || !teacherInfoData) {
-          alert('无法加载课程数据，请先在主页面生成课表');
-          return null;
+          console.log('本地存储中没有课程数据，将显示默认界面');
+          return {
+            courses: [],
+            channel: channelData || 'default',
+            teacherInfo: {}
+          };
         }
         
         return {
@@ -168,8 +171,12 @@
         };
       } catch (error) {
         console.error('加载数据失败:', error);
-        alert('加载数据失败，请重试');
-        return null;
+        console.log('将使用默认数据结构');
+        return {
+          courses: [],
+          channel: 'default',
+          teacherInfo: {}
+        };
       }
     }
     
@@ -276,27 +283,33 @@
       var saturdayBtn = document.getElementById('downloadSaturdayBtn');
       var allBtn = document.getElementById('downloadAllBtn');
       
+      console.log('初始化下载按钮:', { fridayBtn, saturdayBtn, allBtn });
+      
       if (fridayBtn) {
-        fridayBtn.onclick = function() {
+        fridayBtn.addEventListener('click', function() {
+          console.log('点击周五下载按钮');
           downloadDayContent('周五');
-        };
+        });
       }
       
       if (saturdayBtn) {
-        saturdayBtn.onclick = function() {
+        saturdayBtn.addEventListener('click', function() {
+          console.log('点击周六下载按钮');
           downloadDayContent('周六');
-        };
+        });
       }
       
       if (allBtn) {
-        allBtn.onclick = function() {
+        allBtn.addEventListener('click', function() {
+          console.log('点击全部下载按钮');
           downloadAllContent();
-        };
+        });
       }
     }
       
     // 下载单天内容为PNG图片
     function downloadDayContent(day) {
+      console.log('开始下载单天内容:', day);
       var fileName = day + '英才班体验营课表.png';
       var scheduleDiv = document.getElementById(day === '周五' ? 'fridaySchedule' : 'saturdaySchedule');
       
@@ -305,29 +318,48 @@
         const tips = scheduleDiv.querySelectorAll('.text-sm.text-white/80');
         tips.forEach(tip => tip.style.display = 'none');
         
-        // 使用html2canvas生成图片
-        html2canvas(scheduleDiv, {
-          backgroundColor: null,
-          scale: 2,
-          useCORS: true,
-          allowTaint: true
-        }).then(canvas => {
+        try {
+          // 确保html2canvas可用
+          if (typeof html2canvas === 'undefined') {
+            alert('html2canvas库未加载成功，请刷新页面重试');
+            return;
+          }
+          
+          // 使用html2canvas生成图片
+          html2canvas(scheduleDiv, {
+            backgroundColor: null,
+            scale: 2,
+            useCORS: true,
+            allowTaint: true
+          }).then(canvas => {
+            // 显示提示文字
+            tips.forEach(tip => tip.style.display = 'block');
+            
+            // 创建下载链接
+            const link = document.createElement('a');
+            link.download = fileName;
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }).catch(error => {
+            console.error('生成图片失败:', error);
+            alert('生成图片失败，请重试');
+            // 显示提示文字
+            tips.forEach(tip => tip.style.display = 'block');
+          });
+        } catch (error) {
+          console.error('下载失败:', error);
+          alert('下载失败，请重试');
           // 显示提示文字
           tips.forEach(tip => tip.style.display = 'block');
-          
-          // 创建下载链接
-          const link = document.createElement('a');
-          link.download = fileName;
-          link.href = canvas.toDataURL('image/png');
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        });
+        }
       }
     }
     
     // 下载全部内容为PNG图片
     function downloadAllContent() {
+      console.log('开始下载全部内容');
       var fileName = '全部英才班体验营课表.png';
       var allContentDiv = document.createElement('div');
       allContentDiv.className = 'space-y-12 p-4';
@@ -347,24 +379,41 @@
       
       document.body.appendChild(allContentDiv);
       
-      // 使用html2canvas生成图片
-      html2canvas(allContentDiv, {
-        backgroundColor: '#f3f4f6',
-        scale: 2,
-        useCORS: true,
-        allowTaint: true
-      }).then(canvas => {
-        // 移除临时元素
-        document.body.removeChild(allContentDiv);
+      try {
+        // 确保html2canvas可用
+        if (typeof html2canvas === 'undefined') {
+          alert('html2canvas库未加载成功，请刷新页面重试');
+          document.body.removeChild(allContentDiv);
+          return;
+        }
         
-        // 创建下载链接
-        const link = document.createElement('a');
-        link.download = fileName;
-        link.href = canvas.toDataURL('image/png');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
+        // 使用html2canvas生成图片
+        html2canvas(allContentDiv, {
+          backgroundColor: '#f3f4f6',
+          scale: 2,
+          useCORS: true,
+          allowTaint: true
+        }).then(canvas => {
+          // 移除临时元素
+          document.body.removeChild(allContentDiv);
+          
+          // 创建下载链接
+          const link = document.createElement('a');
+          link.download = fileName;
+          link.href = canvas.toDataURL('image/png');
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }).catch(error => {
+          console.error('生成全部图片失败:', error);
+          alert('生成图片失败，请重试');
+          document.body.removeChild(allContentDiv);
+        });
+      } catch (error) {
+        console.error('下载全部失败:', error);
+        alert('下载失败，请重试');
+        document.body.removeChild(allContentDiv);
+      }
     }
     
     // 创建下载链接
@@ -379,6 +428,9 @@
     
     // 页面加载完成后初始化
     window.onload = function() {
+      // 立即初始化下载按钮，确保按钮可以点击
+      initDownloadButtons();
+      
       // 获取DOM元素
       var fridayTeachers = document.getElementById('fridayTeachers');
       var saturdayTeachers = document.getElementById('saturdayTeachers');
@@ -388,10 +440,9 @@
       if (data && fridayTeachers && saturdayTeachers) {
         generateDaySchedule('周五', fridayTeachers, data.teacherInfo);
         generateDaySchedule('周六', saturdayTeachers, data.teacherInfo);
+      } else {
+        console.log('数据加载失败或DOM元素不存在，但下载按钮已初始化');
       }
-      
-      // 初始化下载按钮
-      initDownloadButtons();
     };
   </script>
 </body>

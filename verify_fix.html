@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>修复验证</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+    .success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+    .error { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+    .info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+    button { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+    button:hover { background-color: #0056b3; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>分天课表下载功能修复验证</h1>
+    
+    <div class="section info">
+      <h2>修复内容总结</h2>
+      <ol>
+        <li>提高了下载按钮的 z-index 层级，确保按钮可见且可点击</li>
+        <li>更换了 html2canvas 库的 CDN 源为更稳定的 CDNJS</li>
+        <li>修复了事件监听器，将 onclick 改为 addEventListener</li>
+        <li>添加了完善的错误处理和调试日志</li>
+        <li>调整了初始化顺序，确保按钮优先初始化</li>
+        <li>改进了数据加载逻辑，移除了中断流程的 alert</li>
+      </ol>
+    </div>
+    
+    <div class="section">
+      <h2>测试步骤</h2>
+      <ol>
+        <li>点击下方按钮打开分天课表页面</li>
+        <li>检查下载按钮是否可见且可点击</li>
+        <li>点击下载按钮，测试是否能正常生成并下载图片</li>
+        <li>检查控制台是否有错误信息</li>
+      </ol>
+    </div>
+    
+    <div class="section">
+      <h2>测试链接</h2>
+      <button onclick="openDailySchedule()">打开分天课表页面</button>
+      <button onclick="openTestDownload()">测试 html2canvas 库</button>
+      <button onclick="testLocalStorage()">测试本地存储</button>
+    </div>
+    
+    <div id="testResult" class="section"></div>
+  </div>
+
+  <script>
+    function openDailySchedule() {
+      window.open('daily_schedule.html', '_blank');
+    }
+    
+    function openTestDownload() {
+      window.open('test_download.html', '_blank');
+    }
+    
+    function testLocalStorage() {
+      const resultDiv = document.getElementById('testResult');
+      
+      try {
+        // 测试本地存储是否可用
+        localStorage.setItem('test_key', 'test_value');
+        const value = localStorage.getItem('test_key');
+        localStorage.removeItem('test_key');
+        
+        if (value === 'test_value') {
+          resultDiv.className = 'section success';
+          resultDiv.innerHTML = '<h3>✓ 本地存储测试通过</h3><p>localStorage 功能正常，可以用于数据传递。</p>';
+        } else {
+          resultDiv.className = 'section error';
+          resultDiv.innerHTML = '<h3>✗ 本地存储测试失败</h3><p>localStorage 无法正常工作。</p>';
+        }
+      } catch (error) {
+        resultDiv.className = 'section error';
+        resultDiv.innerHTML = '<h3>✗ 本地存储测试失败</h3><p>错误信息: ' + error.message + '</p>';
+      }
+    }
+    
+    // 页面加载完成后自动测试本地存储
+    window.onload = function() {
+      testLocalStorage();
+    };
+  </script>
+</body>
+</html>

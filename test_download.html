@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>测试下载功能</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .test-area { background: #E53E3E; color: white; padding: 20px; margin: 20px 0; border-radius: 10px; }
+    button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>下载功能测试</h1>
+  
+  <div id="testArea" class="test-area">
+    <h2>测试内容</h2>
+    <p>这是一段测试文本</p>
+    <img src="logo.png" alt="Logo" style="width: 100px;">
+  </div>
+  
+  <button id="downloadBtn">测试下载</button>
+  <button id="checkLibBtn">检查html2canvas库</button>
+  
+  <div id="result"></div>
+
+  <script>
+    // 检查html2canvas库
+    document.getElementById('checkLibBtn').addEventListener('click', function() {
+      const resultDiv = document.getElementById('result');
+      if (typeof html2canvas !== 'undefined') {
+        resultDiv.innerHTML = '<p style="color: green;">html2canvas库已成功加载！</p>';
+        console.log('html2canvas版本:', html2canvas.version);
+      } else {
+        resultDiv.innerHTML = '<p style="color: red;">html2canvas库加载失败！</p>';
+      }
+    });
+    
+    // 测试下载功能
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+      const testArea = document.getElementById('testArea');
+      const resultDiv = document.getElementById('result');
+      
+      resultDiv.innerHTML = '<p>正在生成图片...</p>';
+      
+      html2canvas(testArea, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true,
+        allowTaint: true
+      }).then(canvas => {
+        // 创建下载链接
+        const link = document.createElement('a');
+        link.download = 'test_download.png';
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        resultDiv.innerHTML = '<p style="color: green;">图片下载成功！</p>';
+      }).catch(error => {
+        console.error('下载失败:', error);
+        resultDiv.innerHTML = '<p style="color: red;">下载失败: ' + error.message + '</p>';
+      });
+    });
+    
+    // 页面加载完成后自动检查库
+    window.onload = function() {
+      document.getElementById('checkLibBtn').click();
+    };
+  </script>
+</body>
+</html>
