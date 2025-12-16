@@ -325,7 +325,7 @@
       
       try {
         // 隐藏提示文字
-        const tips = scheduleDiv.querySelectorAll('.text-sm.text-white/80');
+        const tips = scheduleDiv.querySelectorAll('.text-sm.text-white\\/80');
         tips.forEach(tip => tip.style.display = 'none');
         
         // 使用html2canvas生成图片
@@ -360,7 +360,7 @@
         console.error('下载过程出错:', error);
         alert('下载过程出错: ' + error.message);
         // 确保提示文字显示
-        const tips = scheduleDiv.querySelectorAll('.text-sm.text-white/80');
+        const tips = scheduleDiv.querySelectorAll('.text-sm.text-white\\/80');
         tips.forEach(tip => tip.style.display = 'block');
       }
     }
@@ -389,7 +389,7 @@
         }
         
         // 隐藏原始课表的提示文字
-        const originalTips = document.querySelectorAll('.text-sm.text-white/80');
+        const originalTips = document.querySelectorAll('.text-sm.text-white\\/80');
         originalTips.forEach(tip => tip.style.display = 'none');
         
         // 创建临时容器
@@ -443,7 +443,7 @@
         console.error('下载全部课表失败:', error);
         alert('下载全部课表失败: ' + error.message);
         // 确保所有提示文字都显示
-        const allTips = document.querySelectorAll('.text-sm.text-white/80');
+        const allTips = document.querySelectorAll('.text-sm.text-white\\/80');
         allTips.forEach(tip => tip.style.display = 'block');
       }
     }
